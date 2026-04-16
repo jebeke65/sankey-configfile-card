@@ -110,19 +110,52 @@ export class SankeyConfigFileCard extends LitElement {
       throw new Error('Loaded config must be an object with a `type` key');
     }
 
-    const helpers = await (window as any).loadCardHelpers?.();
-    if (!helpers?.createCardElement) {
-      throw new Error('Home Assistant card helpers are not available');
+    const type = innerConfig.type;
+    let el: LovelaceCard | null = null;
+
+    // For `custom:...` cards, instantiate the custom element directly so we
+    // can pass `isMetric` to setConfig — some cards (e.g. ha-sankey-chart)
+    // require it. `helpers.createCardElement` only forwards the first arg.
+    if (type.startsWith('custom:')) {
+      const tag = type.slice('custom:'.length);
+      const Ctor = customElements.get(tag);
+      if (Ctor) {
+        el = new Ctor() as LovelaceCard;
+        const isMetric = this._isMetric();
+        try {
+          (el as any).setConfig(innerConfig, isMetric);
+        } catch (err) {
+          el = null;
+          throw err;
+        }
+      } else {
+        // Element not registered yet (resource still loading) — let helpers
+        // handle the wait + error state.
+        el = null;
+      }
     }
 
-    const el = helpers.createCardElement(innerConfig) as LovelaceCard;
+    if (!el) {
+      const helpers = await (window as any).loadCardHelpers?.();
+      if (!helpers?.createCardElement) {
+        throw new Error('Home Assistant card helpers are not available');
+      }
+      el = helpers.createCardElement(innerConfig) as LovelaceCard;
+    }
+
     if (this.hass) {
-      el.hass = this.hass;
+      el!.hass = this.hass;
     }
 
-    this._innerCard = el;
+    this._innerCard = el!;
     this._error = undefined;
     this.requestUpdate();
+  }
+
+  private _isMetric(): boolean {
+    const unit = this.hass?.config?.unit_system?.temperature;
+    // HA sends °C for metric, °F for imperial. Default to metric if unknown.
+    return unit !== '°F';
   }
 
   protected render(): TemplateResult {
