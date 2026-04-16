@@ -1,0 +1,40 @@
+{
+  "name": "sankey-configfile-card",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Home Assistant Lovelace wrapper card that loads any card configuration from an external YAML file",
+  "keywords": [
+    "home-assistant",
+    "homeassistant",
+    "hass",
+    "lovelace",
+    "custom-cards",
+    "yaml",
+    "config"
+  ],
+  "module": "sankey-configfile-card.js",
+  "repository": "git@github.com:jebeke65/sankey-configfile-card.git",
+  "author": "jebeke65",
+  "license": "MIT",
+  "dependencies": {
+    "custom-card-helpers": "^1.9.0",
+    "js-yaml": "^4.1.0",
+    "lit": "2.8"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@types/js-yaml": "^4.0.9",
+    "rollup": "^4.0.0",
+    "rollup-plugin-typescript2": "^0.37.0",
+    "tslib": "^2.6.0",
+    "typescript": "^5.3.0"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "start": "rollup -c --watch"
+  }
+}
